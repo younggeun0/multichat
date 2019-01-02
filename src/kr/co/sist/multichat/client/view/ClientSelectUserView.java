@@ -12,7 +12,8 @@ public class ClientSelectUserView extends JDialog {
 	private JList<String> listUser;
 	private DefaultListModel<String> dlmUser;
 	
-	public ClientSelectUserView() {
+	public ClientSelectUserView(ClientChatView ccv) {
+		super(ccv, "접속자 목록", true);
 		
 		dlmUser = new DefaultListModel<String>();
 		listUser = new JList<String>(dlmUser);
@@ -21,6 +22,7 @@ public class ClientSelectUserView extends JDialog {
 		add(BorderLayout.CENTER, listUser);
 		
 		setBounds(600, 400, 200, 300);
+		setResizable(false);
 		setVisible(true);
 	}
 }

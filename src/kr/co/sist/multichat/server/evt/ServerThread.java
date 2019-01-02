@@ -5,6 +5,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
 
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import kr.co.sist.multichat.server.helper.ServerHelper;
@@ -17,12 +18,15 @@ public class ServerThread extends Thread {
 	private Socket client;
 	private JTextArea jtaChatDisplay;
 	private List<ServerHelper> listClient;
+	private JScrollPane jspChatDisplay;
 	
-	public ServerThread(ServerSocket server, JTextArea jtaChatDisplay, List<ServerHelper> listServer,ServerView sv) {
+	public ServerThread(ServerSocket server, JTextArea jtaChatDisplay, 
+			List<ServerHelper> listServer,ServerView sv, JScrollPane jspChatDisplay) {
 		this.server = server;
 		this.jtaChatDisplay = jtaChatDisplay;
 		this.listClient = listServer;
 		this.sv = sv;
+		this.jspChatDisplay = jspChatDisplay;
 	}
 	
 	@Override
@@ -34,7 +38,7 @@ public class ServerThread extends Thread {
 			for(int cnt=1;;cnt++) {
 				client = server.accept();
 				
-				sh = new ServerHelper(client, jtaChatDisplay, cnt, sv, listClient);
+				sh = new ServerHelper(client, jtaChatDisplay, cnt, sv, listClient, jspChatDisplay);
 				listClient.add(sh);
 				sh.start();
 			}

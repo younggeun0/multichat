@@ -7,6 +7,7 @@ import java.net.Socket;
 import java.util.List;
 
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import kr.co.sist.multichat.server.view.ServerView;
@@ -21,20 +22,25 @@ public class ServerHelper extends Thread {
 	private List<ServerHelper> listClient;
 	private int cnt;
 	private ServerView sv;
+	private JScrollPane jspChatDisplay;
 	
-	public ServerHelper(Socket client, JTextArea jtaChatDisplay, int cnt, ServerView sv, List<ServerHelper> listClient) {
+	public ServerHelper(Socket client, JTextArea jtaChatDisplay, int cnt, ServerView sv, 
+			List<ServerHelper> listClient, JScrollPane jspChatDisplay) {
 		this.client = client;
 		this.jtaChatDisplay = jtaChatDisplay;
 		this.cnt = cnt;
 		this.sv = sv;
 		this.listClient = listClient;
+		this.jspChatDisplay = jspChatDisplay;
 		
 		try {
 			readStream = new DataInputStream(client.getInputStream());
 			writeStream = new DataOutputStream(client.getOutputStream());
 			
 			nick = readStream.readUTF();
+			broadcast(nick+"님이 접속하였습니다.\n");
 			jtaChatDisplay.append(nick+"님이 접속하였습니다.\n");
+			jspChatDisplay.getVerticalScrollBar().setValue(jspChatDisplay.getVerticalScrollBar().getMaximum());
 			
 		} catch (IOException e) {
 			JOptionPane.showMessageDialog(sv, "스트림 생성 실패");
@@ -50,9 +56,12 @@ public class ServerHelper extends Thread {
 					revMsg = readStream.readUTF();
 					jtaChatDisplay.append(revMsg+"\n");
 					broadcast(revMsg);
+					jspChatDisplay.getVerticalScrollBar().setValue(jspChatDisplay.getVerticalScrollBar().getMaximum());
 				}
 			} catch (IOException e) {
 				JOptionPane.showMessageDialog(sv, nick+"님과 연결이 끊어졌습니다.");
+				jtaChatDisplay.append(nick+"님과 연결이 끊어졌습니다.\n");
+				jspChatDisplay.getVerticalScrollBar().setValue(jspChatDisplay.getVerticalScrollBar().getMaximum());
 				e.printStackTrace();
 			} finally {
 				try {

@@ -56,10 +56,10 @@ public class ServerEvt extends WindowAdapter implements ActionListener {
 		server3 = new ServerSocket(6003);
 		server4 = new ServerSocket(6004);
 		
-		serverThread1 = new ServerThread(server1, sv.getJtaChatDisplay1(), listServer1, sv);
-		serverThread2 = new ServerThread(server2, sv.getJtaChatDisplay2(), listServer2, sv);
-		serverThread3 = new ServerThread(server3, sv.getJtaChatDisplay3(), listServer3, sv);
-		serverThread4 = new ServerThread(server4, sv.getJtaChatDisplay4(), listServer4, sv);
+		serverThread1 = new ServerThread(server1, sv.getJtaChatDisplay1(), listServer1, sv, sv.getJspChatDisplay1());
+		serverThread2 = new ServerThread(server2, sv.getJtaChatDisplay2(), listServer2, sv, sv.getJspChatDisplay2());
+		serverThread3 = new ServerThread(server3, sv.getJtaChatDisplay3(), listServer3, sv, sv.getJspChatDisplay3());
+		serverThread4 = new ServerThread(server4, sv.getJtaChatDisplay4(), listServer4, sv, sv.getJspChatDisplay4());
 		
 		serverThread1.start();
 		serverThread2.start();
