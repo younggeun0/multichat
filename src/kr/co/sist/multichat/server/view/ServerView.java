@@ -63,6 +63,7 @@ public class ServerView extends JFrame {
 		
 		addWindowListener(se);
 
+		setResizable(false);
 		setBounds(400, 150, 700, 700);
 		setVisible(true);
 	}

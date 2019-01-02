@@ -36,6 +36,8 @@ public class ServerEvt extends WindowAdapter implements ActionListener {
 			try {
 				if (server1 == null & server2 == null && server3 == null && server4 == null) {
 					startServers();
+				} else {
+					JOptionPane.showMessageDialog(sv, "이미 가동중입니다.");
 				}
 			} catch (IOException ie) {
 				JOptionPane.showMessageDialog(sv, "서버 접속 실패");
@@ -91,6 +93,8 @@ public class ServerEvt extends WindowAdapter implements ActionListener {
 			}
 		} catch (IOException e1) {
 			e1.printStackTrace();
+		} finally {
+			System.exit(0);
 		}
 	}
 }

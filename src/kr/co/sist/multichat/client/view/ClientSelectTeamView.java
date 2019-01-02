@@ -18,6 +18,7 @@ public class ClientSelectTeamView extends JFrame {
 		JLabel jlSelectTeam = new JLabel("채팅방 선택");
 
 		jrTeam1 = new JRadioButton("1조");
+		jrTeam1.setSelected(true);
 		jrTeam2 = new JRadioButton("2조");
 		jrTeam3 = new JRadioButton("3조");
 		jrTeam4 = new JRadioButton("4조");

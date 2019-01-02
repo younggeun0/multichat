@@ -13,6 +13,7 @@ import kr.co.sist.multichat.server.view.ServerView;
 
 public class ServerHelper extends Thread {
 
+	private String nick;
 	private Socket client;
 	private JTextArea jtaChatDisplay;
 	private DataInputStream readStream;
@@ -24,12 +25,16 @@ public class ServerHelper extends Thread {
 	public ServerHelper(Socket client, JTextArea jtaChatDisplay, int cnt, ServerView sv, List<ServerHelper> listClient) {
 		this.client = client;
 		this.jtaChatDisplay = jtaChatDisplay;
+		this.cnt = cnt;
 		this.sv = sv;
 		this.listClient = listClient;
 		
 		try {
 			readStream = new DataInputStream(client.getInputStream());
 			writeStream = new DataOutputStream(client.getOutputStream());
+			
+			nick = readStream.readUTF();
+			jtaChatDisplay.append(nick+"님이 접속하였습니다.\n");
 			
 		} catch (IOException e) {
 			JOptionPane.showMessageDialog(sv, "스트림 생성 실패");
@@ -47,7 +52,7 @@ public class ServerHelper extends Thread {
 					broadcast(revMsg);
 				}
 			} catch (IOException e) {
-				JOptionPane.showMessageDialog(sv, "클라이언트와의 연결이 끊어졌습니다.");
+				JOptionPane.showMessageDialog(sv, nick+"님과 연결이 끊어졌습니다.");
 				e.printStackTrace();
 			} finally {
 				try {
@@ -67,6 +72,7 @@ public class ServerHelper extends Thread {
 		}
 		
 	}
+	
 	public synchronized void broadcast(String msg) {
 
 		if (writeStream != null) {
@@ -82,6 +88,7 @@ public class ServerHelper extends Thread {
 			}
 		}
 	}
+	
 	public Socket getClient() {
 		return client;
 	}

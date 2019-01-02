@@ -33,7 +33,6 @@ public class ServerThread extends Thread {
 			
 			for(int cnt=1;;cnt++) {
 				client = server.accept();
-				jtaChatDisplay.append("클라이언트가 접속하였습니다.\n");
 				
 				sh = new ServerHelper(client, jtaChatDisplay, cnt, sv, listClient);
 				listClient.add(sh);

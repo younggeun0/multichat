@@ -49,10 +49,17 @@ public class ClientChatView extends JFrame {
 		add(BorderLayout.SOUTH, jtfTalk);
 		
 		ClientChatEvt cce = new ClientChatEvt(this, portNum);
+		jbConnect.addActionListener(cce);
+		jbCapture.addActionListener(cce);
+		jbClose.addActionListener(cce);
+		jbUser.addActionListener(cce);
+		jtfTalk.addActionListener(cce);
 		
+		addWindowListener(cce);
+		
+		setResizable(false);
 		setBounds(400, 300, 500, 300);
 		setVisible(true);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 
 	public JButton getJbConnect() {
