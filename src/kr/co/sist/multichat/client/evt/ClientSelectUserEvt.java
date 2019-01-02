@@ -10,5 +10,4 @@ public class ClientSelectUserEvt extends WindowAdapter implements ItemListener {
 	public void itemStateChanged(ItemEvent e) {
 		
 	}
-	
 }
