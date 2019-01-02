@@ -9,5 +9,4 @@ public class ClientChatEvt implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		
 	}
-
 }
