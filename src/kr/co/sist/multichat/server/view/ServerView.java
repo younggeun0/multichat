@@ -58,7 +58,11 @@ public class ServerView extends JFrame {
 		add(BorderLayout.SOUTH, jpSouth);
 		
 		ServerEvt se = new ServerEvt(this);
+		jbStart.addActionListener(se);
+		jbClose.addActionListener(se);
+		
 		addWindowListener(se);
+
 		setBounds(400, 150, 700, 700);
 		setVisible(true);
 	}
