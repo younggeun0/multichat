@@ -3,6 +3,7 @@ package kr.co.sist.multichat.server.helper;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.util.List;
 
@@ -15,6 +16,7 @@ import kr.co.sist.multichat.server.view.ServerView;
 public class ServerHelper extends Thread {
 
 	private String nick;
+	private InetAddress ia;
 	private Socket client;
 	private JTextArea jtaChatDisplay;
 	private DataInputStream readStream;
@@ -32,6 +34,8 @@ public class ServerHelper extends Thread {
 		this.sv = sv;
 		this.listClient = listClient;
 		this.jspChatDisplay = jspChatDisplay;
+		
+		ia = client.getInetAddress();
 		
 		try {
 			readStream = new DataInputStream(client.getInputStream());
@@ -82,6 +86,9 @@ public class ServerHelper extends Thread {
 		
 	}
 	
+	// msg랑 list를 같이 broadcast해야하나..? 
+	// 그렇다면 읽어들인 msg와 list를 구분하여 읽어들여 저장하도록 구현해야됨
+	// 내일 구현해볼것
 	public synchronized void broadcast(String msg) {
 
 		if (writeStream != null) {
@@ -89,6 +96,7 @@ public class ServerHelper extends Thread {
 				ServerHelper tempSh = null;
 				for (int i=0; i<listClient.size(); i++) {
 					tempSh = listClient.get(i);
+//					tempSh.writeStream.writeUTF(msg+listClient); //??
 					tempSh.writeStream.writeUTF(msg);
 					tempSh.writeStream.flush();
 				}
