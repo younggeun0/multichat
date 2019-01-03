@@ -10,11 +10,11 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.DefaultListModel;
@@ -33,16 +33,18 @@ public class ClientChatEvt extends WindowAdapter implements ActionListener, Runn
 	private Socket client;
 	private DataInputStream readStream;
 	private DataOutputStream writeStream;
-	private ObjectInputStream readObjectStream;
 	private Thread readThread;
 	private boolean connectFlag;
-	private List<ServerHelper> listClient;
-	private List<InetAddress> listInetAddress;
+	private DefaultListModel<String> dlmUser;
+	private List<String> listIa;
+	private boolean flagGetUser;
+	private String[] csvUser;
 
 	public ClientChatEvt(ClientChatView ccv, int portNum) {
 		this.ccv = ccv;
 		this.portNum = portNum;
-		listInetAddress = new ArrayList<>();
+		dlmUser = new DefaultListModel<String>();
+		listIa = new ArrayList<String>();
 	}
 	
 	@Override
@@ -52,21 +54,29 @@ public class ClientChatEvt extends WindowAdapter implements ActionListener, Runn
 				String revMsg = "";
 				while (true) {
 					revMsg = readStream.readUTF();
-					ccv.getJtaChatDisplay().append(revMsg+"\n");
-					ccv.getJspChatDisplay().getVerticalScrollBar().setValue(ccv.getJspChatDisplay().getVerticalScrollBar().getMaximum());
-					listClient = (List<ServerHelper>)readObjectStream.readObject();
+					if(flagGetUser) {
+						System.out.println("before "+dlmUser.toString());
+						dlmUser.removeAllElements();
+						
+						csvUser = revMsg.split(",");
+						for(int i=0; i<csvUser.length; i++) {
+							dlmUser.addElement(csvUser[i]);
+						}
+						System.out.println("after "+dlmUser.toString());
+						new ClientSelectUserView(ccv, dlmUser);
+						flagGetUser = !flagGetUser;
+					} else {
+						ccv.getJtaChatDisplay().append(revMsg+"\n");
+						ccv.getJspChatDisplay().getVerticalScrollBar().setValue(ccv.getJspChatDisplay().getVerticalScrollBar().getMaximum());
+					}
 				}
 			} catch (IOException e) {
 				JOptionPane.showMessageDialog(ccv, "서버와의 접속이 끊겼습니다.");
 				ccv.getJtaChatDisplay().append("서버와의 접속이 끊겼습니다.\n");
 				ccv.getJspChatDisplay().getVerticalScrollBar().setValue(ccv.getJspChatDisplay().getVerticalScrollBar().getMaximum());
 				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
-				JOptionPane.showMessageDialog(ccv, "유저들을 찾을 수 없습니다.");
-				e.printStackTrace();
 			}
 		}
-		
 	}
 	
 	@Override
@@ -83,7 +93,6 @@ public class ClientChatEvt extends WindowAdapter implements ActionListener, Runn
 					client = new Socket("localhost", portNum);
 					ccv.getJtaChatDisplay().setText("서버와 연결되었습니다.\n");
 					readStream = new DataInputStream(client.getInputStream());
-//					readObjectStream = new ObjectInputStream(client.getInputStream());
 					writeStream = new DataOutputStream(client.getOutputStream());
 					
 					writeStream.writeUTF(nick);
@@ -118,18 +127,11 @@ public class ClientChatEvt extends WindowAdapter implements ActionListener, Runn
 			ccv.dispose();
 		}
 		if (e.getSource() == ccv.getJbUser()) {
-			if (listClient == null || listClient.isEmpty()) {
-				DefaultListModel<String> dlmUser = new DefaultListModel<>();
-				
-				ServerHelper tempSh = null;
-				for(int i=0; i<listClient.size(); i++) {
-					tempSh = listClient.get(i);
-					dlmUser.addElement(tempSh.getNick());
-					listInetAddress.add(tempSh.getIa());
-				}
-				new ClientSelectUserView(ccv, dlmUser, listInetAddress);
-			} else {
-				JOptionPane.showMessageDialog(ccv, "아직 서버에 접속한 유저가 없습니다.");
+			try {
+				sendMsg("!requestClient");
+				flagGetUser = !flagGetUser;
+			} catch (IOException e1) {
+				e1.printStackTrace();
 			}
 		}
 		if (e.getSource() == ccv.getJtfTalk()) {
@@ -191,9 +193,6 @@ public class ClientChatEvt extends WindowAdapter implements ActionListener, Runn
 		try {
 			if (readStream != null) {
 				readStream.close();
-			}
-			if (readObjectStream != null) {
-				readObjectStream.close();
 			}
 			if (writeStream != null) {
 				writeStream.close();

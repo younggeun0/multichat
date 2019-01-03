@@ -16,8 +16,7 @@ public class ClientSelectUserView extends JDialog {
 	private JList<String> listUser;
 	private DefaultListModel<String> dlmUser;
 	
-	public ClientSelectUserView(ClientChatView ccv, DefaultListModel<String> dlmUser
-			, List<InetAddress> listInetAddress) {
+	public ClientSelectUserView(ClientChatView ccv, DefaultListModel<String> dlmUser) {
 		super(ccv, "접속자 목록", true);
 		
 		this.dlmUser = dlmUser;
