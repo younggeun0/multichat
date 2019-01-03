@@ -10,11 +10,9 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.DefaultListModel;
@@ -23,7 +21,6 @@ import javax.swing.JTextField;
 
 import kr.co.sist.multichat.client.view.ClientChatView;
 import kr.co.sist.multichat.client.view.ClientSelectUserView;
-import kr.co.sist.multichat.server.helper.ServerHelper;
 
 public class ClientChatEvt extends WindowAdapter implements ActionListener, Runnable {
 	
@@ -36,7 +33,6 @@ public class ClientChatEvt extends WindowAdapter implements ActionListener, Runn
 	private Thread readThread;
 	private boolean connectFlag;
 	private DefaultListModel<String> dlmUser;
-	private List<String> listIa;
 	private boolean flagGetUser;
 	private String[] csvUser;
 
@@ -44,7 +40,6 @@ public class ClientChatEvt extends WindowAdapter implements ActionListener, Runn
 		this.ccv = ccv;
 		this.portNum = portNum;
 		dlmUser = new DefaultListModel<String>();
-		listIa = new ArrayList<String>();
 	}
 	
 	@Override
@@ -55,14 +50,11 @@ public class ClientChatEvt extends WindowAdapter implements ActionListener, Runn
 				while (true) {
 					revMsg = readStream.readUTF();
 					if(flagGetUser) {
-						System.out.println("before "+dlmUser.toString());
 						dlmUser.removeAllElements();
-						
 						csvUser = revMsg.split(",");
 						for(int i=0; i<csvUser.length; i++) {
 							dlmUser.addElement(csvUser[i]);
 						}
-						System.out.println("after "+dlmUser.toString());
 						new ClientSelectUserView(ccv, dlmUser);
 						flagGetUser = !flagGetUser;
 					} else {
@@ -127,11 +119,15 @@ public class ClientChatEvt extends WindowAdapter implements ActionListener, Runn
 			ccv.dispose();
 		}
 		if (e.getSource() == ccv.getJbUser()) {
-			try {
-				sendMsg("!requestClient");
-				flagGetUser = !flagGetUser;
-			} catch (IOException e1) {
-				e1.printStackTrace();
+			if (connectFlag) {
+				try {
+					sendMsg("!requestClient");
+					flagGetUser = !flagGetUser;
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			} else {
+				JOptionPane.showMessageDialog(ccv, "서버에 먼저 접속해주세요.");
 			}
 		}
 		if (e.getSource() == ccv.getJtfTalk()) {
