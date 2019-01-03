@@ -3,6 +3,8 @@ package kr.co.sist.multichat.server.helper;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.List;
@@ -13,7 +15,7 @@ import javax.swing.JTextArea;
 
 import kr.co.sist.multichat.server.view.ServerView;
 
-public class ServerHelper extends Thread {
+public class ServerHelper extends Thread implements Serializable {
 
 	private String nick;
 	private InetAddress ia;
@@ -21,6 +23,7 @@ public class ServerHelper extends Thread {
 	private JTextArea jtaChatDisplay;
 	private DataInputStream readStream;
 	private DataOutputStream writeStream;
+	private ObjectOutputStream writeObjectStream;
 	private List<ServerHelper> listClient;
 	private int cnt;
 	private ServerView sv;
@@ -40,6 +43,7 @@ public class ServerHelper extends Thread {
 		try {
 			readStream = new DataInputStream(client.getInputStream());
 			writeStream = new DataOutputStream(client.getOutputStream());
+			writeObjectStream = new ObjectOutputStream(client.getOutputStream());
 			
 			nick = readStream.readUTF();
 			broadcast(nick+"님이 접속하였습니다.\n");
@@ -75,6 +79,9 @@ public class ServerHelper extends Thread {
 					if (writeStream != null) {
 						writeStream.close();
 					}
+					if (writeObjectStream != null) {
+						writeObjectStream.close();
+					}
 					if (client != null) {
 						client.close();
 					}
@@ -96,9 +103,10 @@ public class ServerHelper extends Thread {
 				ServerHelper tempSh = null;
 				for (int i=0; i<listClient.size(); i++) {
 					tempSh = listClient.get(i);
-//					tempSh.writeStream.writeUTF(msg+listClient); //??
 					tempSh.writeStream.writeUTF(msg);
 					tempSh.writeStream.flush();
+					tempSh.writeObjectStream.writeObject(listClient);
+					tempSh.writeObjectStream.flush();
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -111,5 +119,11 @@ public class ServerHelper extends Thread {
 	}
 	public void setClient(Socket client) {
 		this.client = client;
+	}
+	public String getNick() {
+		return nick;
+	}
+	public InetAddress getIa() {
+		return ia;
 	}
 }
