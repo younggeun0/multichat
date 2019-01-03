@@ -12,7 +12,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
@@ -28,10 +31,15 @@ public class ClientChatEvt extends WindowAdapter implements ActionListener, Runn
 	private DataInputStream readStream;
 	private DataOutputStream writeStream;
 	private Thread readThread;
+	private boolean connectFlag;
+	private DefaultListModel<String> dlmUser;
+	private boolean flagGetUser;
+	private String[] csvUser;
 
 	public ClientChatEvt(ClientChatView ccv, int portNum) {
 		this.ccv = ccv;
 		this.portNum = portNum;
+		dlmUser = new DefaultListModel<String>();
 	}
 	
 	@Override
@@ -41,8 +49,18 @@ public class ClientChatEvt extends WindowAdapter implements ActionListener, Runn
 				String revMsg = "";
 				while (true) {
 					revMsg = readStream.readUTF();
-					ccv.getJtaChatDisplay().append(revMsg+"\n");
-					ccv.getJspChatDisplay().getVerticalScrollBar().setValue(ccv.getJspChatDisplay().getVerticalScrollBar().getMaximum());
+					if(flagGetUser) {
+						dlmUser.removeAllElements();
+						csvUser = revMsg.split(",");
+						for(int i=0; i<csvUser.length; i++) {
+							dlmUser.addElement(csvUser[i]);
+						}
+						new ClientSelectUserView(ccv, dlmUser);
+						flagGetUser = !flagGetUser;
+					} else {
+						ccv.getJtaChatDisplay().append(revMsg+"\n");
+						ccv.getJspChatDisplay().getVerticalScrollBar().setValue(ccv.getJspChatDisplay().getVerticalScrollBar().getMaximum());
+					}
 				}
 			} catch (IOException e) {
 				JOptionPane.showMessageDialog(ccv, "서버와의 접속이 끊겼습니다.");
@@ -51,34 +69,38 @@ public class ClientChatEvt extends WindowAdapter implements ActionListener, Runn
 				e.printStackTrace();
 			}
 		}
-		
 	}
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == ccv.getJbConnect()) {
-			try {
-				nick = ccv.getJtfNick().getText().trim();
-				if(nick.isEmpty()) {
-					JOptionPane.showMessageDialog(ccv, "대화명을 입력해주세요.");
-					ccv.getJtfNick().requestFocus();
-					return;
+			if(!connectFlag) {
+				try {
+					nick = ccv.getJtfNick().getText().trim();
+					if(nick.isEmpty()) {
+						JOptionPane.showMessageDialog(ccv, "대화명을 입력해주세요.");
+						ccv.getJtfNick().requestFocus();
+						return;
+					}
+					client = new Socket("localhost", portNum);
+					ccv.getJtaChatDisplay().setText("서버와 연결되었습니다.\n");
+					readStream = new DataInputStream(client.getInputStream());
+					writeStream = new DataOutputStream(client.getOutputStream());
+					
+					writeStream.writeUTF(nick);
+					writeStream.flush();
+					
+					readThread = new Thread(this);
+					readThread.start();
+					
+					connectFlag = !connectFlag;
+				} catch (UnknownHostException uhe) {
+					uhe.printStackTrace();
+				} catch (IOException ie) {
+					ie.printStackTrace();
 				}
-				client = new Socket("localhost", portNum);
-				ccv.getJtaChatDisplay().setText("서버와 연결되었습니다.\n");
-				readStream = new DataInputStream(client.getInputStream());
-				writeStream = new DataOutputStream(client.getOutputStream());
-				
-				writeStream.writeUTF(nick);
-				writeStream.flush();
-				
-				readThread = new Thread(this);
-				readThread.start();
-				
-			} catch (UnknownHostException uhe) {
-				uhe.printStackTrace();
-			} catch (IOException ie) {
-				ie.printStackTrace();
+			} else {
+				JOptionPane.showMessageDialog(ccv, "이미 서버에 접속중입니다.");
 			}
 		}
 		if (e.getSource() == ccv.getJbCapture()) {
@@ -97,7 +119,16 @@ public class ClientChatEvt extends WindowAdapter implements ActionListener, Runn
 			ccv.dispose();
 		}
 		if (e.getSource() == ccv.getJbUser()) {
-			new ClientSelectUserView(ccv);
+			if (connectFlag) {
+				try {
+					sendMsg("!requestClient");
+					flagGetUser = !flagGetUser;
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			} else {
+				JOptionPane.showMessageDialog(ccv, "서버에 먼저 접속해주세요.");
+			}
 		}
 		if (e.getSource() == ccv.getJtfTalk()) {
 			JTextField jtf = ccv.getJtfTalk();

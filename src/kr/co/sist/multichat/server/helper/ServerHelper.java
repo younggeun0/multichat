@@ -3,6 +3,7 @@ package kr.co.sist.multichat.server.helper;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.List;
@@ -42,7 +43,7 @@ public class ServerHelper extends Thread {
 			writeStream = new DataOutputStream(client.getOutputStream());
 			
 			nick = readStream.readUTF();
-			broadcast(nick+"님이 접속하였습니다.\n");
+			broadcast(nick+"님이 접속하였습니다.");
 			jtaChatDisplay.append(nick+"님이 접속하였습니다.\n");
 			jspChatDisplay.getVerticalScrollBar().setValue(jspChatDisplay.getVerticalScrollBar().getMaximum());
 			
@@ -56,11 +57,25 @@ public class ServerHelper extends Thread {
 		if (readStream != null) {
 			try {
 				String revMsg = "";
+				StringBuilder csvUser = new StringBuilder();
+				ServerHelper tempSh = null;
 				while (true) {
 					revMsg = readStream.readUTF();
-					jtaChatDisplay.append(revMsg+"\n");
-					broadcast(revMsg);
-					jspChatDisplay.getVerticalScrollBar().setValue(jspChatDisplay.getVerticalScrollBar().getMaximum());
+					
+					if(revMsg.equals("!requestClient")) {
+						for(int i=0; i<listClient.size(); i++) {
+							tempSh = listClient.get(i);
+							csvUser.append(tempSh.getNick()).append(",");
+						}
+						writeStream.writeUTF(csvUser.toString());
+						writeStream.flush();
+						System.out.println(csvUser);
+						csvUser.delete(0, csvUser.length());
+					} else {
+						jtaChatDisplay.append(revMsg+"\n");
+						broadcast(revMsg);
+						jspChatDisplay.getVerticalScrollBar().setValue(jspChatDisplay.getVerticalScrollBar().getMaximum());
+					}
 				}
 			} catch (IOException e) {
 				JOptionPane.showMessageDialog(sv, nick+"님과 연결이 끊어졌습니다.");
@@ -86,9 +101,6 @@ public class ServerHelper extends Thread {
 		
 	}
 	
-	// msg랑 list를 같이 broadcast해야하나..? 
-	// 그렇다면 읽어들인 msg와 list를 구분하여 읽어들여 저장하도록 구현해야됨
-	// 내일 구현해볼것
 	public synchronized void broadcast(String msg) {
 
 		if (writeStream != null) {
@@ -96,7 +108,6 @@ public class ServerHelper extends Thread {
 				ServerHelper tempSh = null;
 				for (int i=0; i<listClient.size(); i++) {
 					tempSh = listClient.get(i);
-//					tempSh.writeStream.writeUTF(msg+listClient); //??
 					tempSh.writeStream.writeUTF(msg);
 					tempSh.writeStream.flush();
 				}
@@ -111,5 +122,11 @@ public class ServerHelper extends Thread {
 	}
 	public void setClient(Socket client) {
 		this.client = client;
+	}
+	public String getNick() {
+		return nick;
+	}
+	public InetAddress getIa() {
+		return ia;
 	}
 }

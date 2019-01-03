@@ -21,7 +21,8 @@ public class ClientChatView extends JFrame {
 	private JTextField jtfTalk, jtfNick;
 	
 	public ClientChatView(int portNum) {
-
+		super("채팅 클라이언트");
+		
 		JLabel jlNick = new JLabel("대화명", JLabel.CENTER);
 		JPanel jpNorth = new JPanel();
 		

@@ -14,6 +14,7 @@ public class ClientSelectTeamView extends JFrame {
 	private JButton jbConnect;
 	
 	public ClientSelectTeamView() {
+		super("채팅방 선택");
 		
 		JLabel jlSelectTeam = new JLabel("채팅방 선택");
 
