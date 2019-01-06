@@ -21,17 +21,17 @@ public class ServerThread extends Thread {
 	private JTextArea jtaChatDisplay;
 	private List<ServerHelper> listClient;
 	private JScrollPane jspChatDisplay;
-	private DefaultListModel<String> dlmUser;
+	private List<String> listUser;
 	
 	public ServerThread(ServerSocket server, JTextArea jtaChatDisplay, 
 			List<ServerHelper> listClient,ServerView sv, JScrollPane jspChatDisplay,
-			DefaultListModel<String> dlmUser) {
+			List<String> listUser) {
 		this.server = server;
 		this.jtaChatDisplay = jtaChatDisplay;
 		this.listClient = listClient;
 		this.sv = sv;
 		this.jspChatDisplay = jspChatDisplay;
-		this.dlmUser = dlmUser;
+		this.listUser = listUser;
 	}
 	
 	@Override
@@ -43,7 +43,7 @@ public class ServerThread extends Thread {
 			while(true) {
 				client = server.accept();
 				sh = new ServerHelper(client, jtaChatDisplay, sv, listClient
-						, jspChatDisplay, dlmUser);
+						, jspChatDisplay, listUser);
 				sh.start();
 			}
 			

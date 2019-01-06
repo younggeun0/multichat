@@ -3,6 +3,7 @@ package kr.co.sist.multichat.server.helper;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.InetAddress;
@@ -24,20 +25,20 @@ public class ServerHelper extends Thread {
 	private JTextArea jtaChatDisplay;
 	private DataInputStream readStream;
 	private DataOutputStream writeStream;
+	private ObjectInputStream readObjectStream;
 	private ObjectOutputStream writeObjectStream;
 	private String IaAndNick;
-	private DefaultListModel<String> dlmUser;
+	private List<String> listUser; 
 	private List<ServerHelper> listClient;
 	private ServerView sv;
 	private JScrollPane jspChatDisplay;
-	private ServerHelper.DlmVO dv;
 	
 	public ServerHelper(Socket client, JTextArea jtaChatDisplay, ServerView sv, 
 			List<ServerHelper> listClient, JScrollPane jspChatDisplay,
-			DefaultListModel<String> dlmUser) {
+			List<String> listUser) {
 		
 		listClient.add(this);
-		this.dlmUser = dlmUser;
+		this.listUser = listUser;
 		ia = client.getInetAddress();
 		
 		this.client = client;
@@ -51,7 +52,8 @@ public class ServerHelper extends Thread {
 			readStream = new DataInputStream(client.getInputStream());
 			writeStream = new DataOutputStream(client.getOutputStream());
 			
-			writeObjectStream = new ObjectOutputStream(client.getOutputStream());
+//			readObjectStream = new ObjectInputStream(client.getInputStream());
+//			writeObjectStream = new ObjectOutputStream(client.getOutputStream());
 			
 			nick = readStream.readUTF();
 
@@ -61,10 +63,9 @@ public class ServerHelper extends Thread {
 					jspChatDisplay.getVerticalScrollBar().getMaximum());
 			
 			IaAndNick = ia.toString()+"@"+nick;
-			dlmUser.addElement(IaAndNick);
-			dv = this.new DlmVO(dlmUser);
-			broadcast(dv);
-			System.out.println("dlmUser브로드////////////////"+dlmUser.toString());
+			listUser.add(IaAndNick);
+//			broadcast(listUser);
+//			System.out.println("listUser브로드////////////////"+listUser.toString());
 			
 		} catch (IOException e) {
 			JOptionPane.showMessageDialog(sv, "스트림 생성 실패");
@@ -88,9 +89,9 @@ public class ServerHelper extends Thread {
 				jspChatDisplay.getVerticalScrollBar().setValue(
 						jspChatDisplay.getVerticalScrollBar().getMaximum());
 				
-				dlmUser.removeElement(IaAndNick);
-				System.out.println("dlmUser빼기////////////////"+dlmUser.toString());
-				broadcast(dv);
+				listUser.remove(IaAndNick);
+				System.out.println("listUser빼기////////////////"+listUser.toString());
+				broadcast(listUser);
 				
 				e.printStackTrace();
 			} finally {
@@ -101,9 +102,12 @@ public class ServerHelper extends Thread {
 					if (writeStream != null) {
 						writeStream.close();
 					}
-					if (writeObjectStream != null) {
-						writeObjectStream.close();
-					}
+//					if (readObjectStream != null) {
+//						readObjectStream.close();
+//					}
+//					if (writeObjectStream != null) {
+//						writeObjectStream.close();
+//					}
 					if (client != null) {
 						client.close();
 					}
@@ -131,13 +135,13 @@ public class ServerHelper extends Thread {
 		}
 	}
 	
-	public synchronized void broadcast(DlmVO dv) {
+	public synchronized void broadcast(List<String> listUser) {
 		if (writeObjectStream != null) {
 			try {
 				ServerHelper tempSh = null;
 				for (int i=0; i<listClient.size(); i++) {
 					tempSh = listClient.get(i);
-					tempSh.writeObjectStream.writeObject(dv);
+					tempSh.writeObjectStream.writeObject(listUser);
 					tempSh.writeObjectStream.flush();
 				}
 			} catch (IOException e) {
@@ -157,22 +161,5 @@ public class ServerHelper extends Thread {
 	}
 	public InetAddress getIa() {
 		return ia;
-	}
-	
-	public class DlmVO implements Serializable {
-
-		private static final long serialVersionUID = 6978768523394300105L;
-		private DefaultListModel<String> dlmUser;
-		
-		public DlmVO(DefaultListModel<String> dlmUser) {
-			this.dlmUser = dlmUser;
-		}
-
-		public DefaultListModel<String> getDlmUser() {
-			return dlmUser;
-		}
-		public void setDlmUser(DefaultListModel<String> dlmUser) {
-			this.dlmUser = dlmUser;
-		}
 	}
 }

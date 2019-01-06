@@ -11,8 +11,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.ConnectException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
@@ -20,7 +24,6 @@ import javax.swing.JTextField;
 
 import kr.co.sist.multichat.client.view.ClientChatView;
 import kr.co.sist.multichat.client.view.ClientSelectUserView;
-import kr.co.sist.multichat.server.helper.ServerHelper.DlmVO;
 
 public class ClientChatEvt extends WindowAdapter implements ActionListener, Runnable {
 	
@@ -31,6 +34,7 @@ public class ClientChatEvt extends WindowAdapter implements ActionListener, Runn
 	private DataInputStream readStream;
 	private DataOutputStream writeStream;
 	private ObjectInputStream readObjectStream;
+	private ObjectOutputStream writeObjectStream;
 	private Thread readThread;
 	private ClientChatEvt.ThreadReadDlmUser rdu;
 	private boolean connectFlag;
@@ -48,10 +52,8 @@ public class ClientChatEvt extends WindowAdapter implements ActionListener, Runn
 		if (readStream != null) {
 			try {
 				String revMsg = "";
-
 				while (true) {
 					revMsg = readStream.readUTF();
-					
 					ccv.getJtaChatDisplay().append(revMsg+"\n");
 					ccv.getJspChatDisplay().getVerticalScrollBar().setValue(
 							ccv.getJspChatDisplay().getVerticalScrollBar().getMaximum());
@@ -61,6 +63,7 @@ public class ClientChatEvt extends WindowAdapter implements ActionListener, Runn
 				ccv.getJtaChatDisplay().append("서버와의 접속이 끊겼습니다.\n");
 				ccv.getJspChatDisplay().getVerticalScrollBar().setValue(
 						ccv.getJspChatDisplay().getVerticalScrollBar().getMaximum());
+				connectFlag = false;
 				e.printStackTrace();
 			}
 		}
@@ -84,21 +87,23 @@ public class ClientChatEvt extends WindowAdapter implements ActionListener, Runn
 					readStream = new DataInputStream(client.getInputStream());
 					writeStream = new DataOutputStream(client.getOutputStream());
 
-					readObjectStream = new ObjectInputStream(client.getInputStream());
+//					readObjectStream = new ObjectInputStream(client.getInputStream());
+//					writeObjectStream = new ObjectOutputStream(client.getOutputStream());
 					
 					writeStream.writeUTF(nick);
 					writeStream.flush();
 					
 					readThread = new Thread(this);
-					rdu = this.new ThreadReadDlmUser();
-
 					readThread.start();
-					rdu.start();
+
+//					rdu = this.new ThreadReadDlmUser();
+//					rdu.start();
 					
 					connectFlag = !connectFlag;
 				} catch (UnknownHostException uhe) {
 					uhe.printStackTrace();
 				} catch (IOException ie) {
+					JOptionPane.showMessageDialog(ccv, "서버가 닫혀있습니다.");
 					ie.printStackTrace();
 				}
 			} else {
@@ -124,6 +129,7 @@ public class ClientChatEvt extends WindowAdapter implements ActionListener, Runn
 		}
 		
 		if (e.getSource() == ccv.getJbUser()) {
+			
 			if (connectFlag) {
 				if (dlmUser.size() != 0) {
 					new ClientSelectUserView(ccv, dlmUser);
@@ -201,9 +207,12 @@ public class ClientChatEvt extends WindowAdapter implements ActionListener, Runn
 			if (writeStream != null) {
 				writeStream.close();
 			}
-			if (readObjectStream != null) {
-				readObjectStream.close();
-			}
+//			if (readObjectStream != null) {
+//				readObjectStream.close();
+//			}
+//			if (writeObjectStream != null) {
+//				writeObjectStream.close();
+//			}
 			if (client != null) {
 				client.close();
 			}
@@ -218,16 +227,19 @@ public class ClientChatEvt extends WindowAdapter implements ActionListener, Runn
 		
 		@Override
 		public void run() {
+			
 			if (readObjectStream != null) {
-				DlmVO tempDlmVO = null;
+				List<String> listUser = null;
 				
 				while(true) {
 					try {
 						System.out.println("1111");
-						tempDlmVO = (DlmVO) readObjectStream.readObject();
+						listUser = (List<String>) readObjectStream.readObject();
 						System.out.println("2222");
-						System.out.println("클라이언트측 : " +tempDlmVO.toString());
-						dlmUser = tempDlmVO.getDlmUser();
+						System.out.println("클라이언트측 : " +listUser.toString());
+						for(int i=0; i<listUser.size(); i++) {
+							dlmUser.addElement(listUser.get(i));
+						}
 						
 					} catch (ClassNotFoundException e) {
 						e.printStackTrace();
