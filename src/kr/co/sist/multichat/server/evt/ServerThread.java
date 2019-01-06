@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
+import java.util.Map;
 
+import javax.swing.DefaultListModel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
@@ -19,14 +21,17 @@ public class ServerThread extends Thread {
 	private JTextArea jtaChatDisplay;
 	private List<ServerHelper> listClient;
 	private JScrollPane jspChatDisplay;
+	private DefaultListModel<String> dlmUser;
 	
 	public ServerThread(ServerSocket server, JTextArea jtaChatDisplay, 
-			List<ServerHelper> listServer,ServerView sv, JScrollPane jspChatDisplay) {
+			List<ServerHelper> listClient,ServerView sv, JScrollPane jspChatDisplay,
+			DefaultListModel<String> dlmUser) {
 		this.server = server;
 		this.jtaChatDisplay = jtaChatDisplay;
-		this.listClient = listServer;
+		this.listClient = listClient;
 		this.sv = sv;
 		this.jspChatDisplay = jspChatDisplay;
+		this.dlmUser = dlmUser;
 	}
 	
 	@Override
@@ -35,11 +40,10 @@ public class ServerThread extends Thread {
 		try {
 			ServerHelper sh = null;
 			
-			for(int cnt=1;;cnt++) {
+			while(true) {
 				client = server.accept();
-				
-				sh = new ServerHelper(client, jtaChatDisplay, cnt, sv, listClient, jspChatDisplay);
-				listClient.add(sh);
+				sh = new ServerHelper(client, jtaChatDisplay, sv, listClient
+						, jspChatDisplay, dlmUser);
 				sh.start();
 			}
 			
