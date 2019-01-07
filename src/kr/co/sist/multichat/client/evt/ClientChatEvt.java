@@ -7,17 +7,13 @@ import java.awt.event.WindowEvent;
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.EOFException;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.ConnectException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
@@ -34,7 +30,7 @@ public class ClientChatEvt extends WindowAdapter implements ActionListener, Runn
 	private Socket client;
 	private DataInputStream readStream;
 	private DataOutputStream writeStream;
-	private ClientChatEvt.ThreadReadObject rdu;
+	private ClientChatEvt.ThreadReadObject tro;
 	private ObjectInputStream readObjectStream;
 	private DefaultListModel<String> dlmUser;
 	private Thread readThread;
@@ -62,8 +58,8 @@ public class ClientChatEvt extends WindowAdapter implements ActionListener, Runn
 					ccv.getJspChatDisplay().getVerticalScrollBar().setValue(
 							ccv.getJspChatDisplay().getVerticalScrollBar().getMaximum());
 				}
-			} catch (EOFException eofe) {
-				// 읽을 거 없을땐 유지
+//			} catch (EOFException eofe) {
+//				// 읽을 거 없을땐 유지
 			} catch (IOException e) {
 				JOptionPane.showMessageDialog(ccv, "서버와의 접속이 끊겼습니다.");
 				ccv.getJtaChatDisplay().append("서버와의 접속이 끊겼습니다.\n");
@@ -96,12 +92,13 @@ public class ClientChatEvt extends WindowAdapter implements ActionListener, Runn
 					writeStream.writeUTF(nick);
 					writeStream.flush();
 
+					// 여기서 에러가..
 					readObjectStream = new ObjectInputStream(client.getInputStream());
 					
 					readThread = new Thread(this);
 					readThread.start();
 					
-					ClientChatEvt.ThreadReadObject tro = this.new ThreadReadObject();
+					tro = this.new ThreadReadObject();
 					tro.start();
 
 					connectFlag = !connectFlag;
@@ -239,8 +236,8 @@ public class ClientChatEvt extends WindowAdapter implements ActionListener, Runn
 						
 					} catch (ClassNotFoundException e) {
 						e.printStackTrace();
-					} catch (EOFException eofe) {
-						// 읽을거 없을 땐 유지
+//					} catch (EOFException eofe) {
+//						// 읽을거 없을 땐 유지
 					} catch (IOException e) {
 						e.printStackTrace();
 						break;

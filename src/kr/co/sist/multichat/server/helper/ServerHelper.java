@@ -3,15 +3,12 @@ package kr.co.sist.multichat.server.helper;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -138,7 +135,7 @@ public class ServerHelper extends Thread {
 	
 	public synchronized void broadcast(ArrayList<String> arrListUser) {
 		
-		if (writeStream != null) {
+		if (writeObjectStream != null) {
 			try {
 				ServerHelper tempSh = null;
 				for (int i=0; i<listClient.size(); i++) {
