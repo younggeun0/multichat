@@ -8,6 +8,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.DefaultListModel;
@@ -25,20 +26,17 @@ public class ServerHelper extends Thread {
 	private JTextArea jtaChatDisplay;
 	private DataInputStream readStream;
 	private DataOutputStream writeStream;
-	private ObjectInputStream readObjectStream;
-	private ObjectOutputStream writeObjectStream;
 	private String IaAndNick;
-	private List<String> listUser; 
 	private List<ServerHelper> listClient;
 	private ServerView sv;
 	private JScrollPane jspChatDisplay;
+	private ArrayList<String> arrListUser;
 	
 	public ServerHelper(Socket client, JTextArea jtaChatDisplay, ServerView sv, 
 			List<ServerHelper> listClient, JScrollPane jspChatDisplay,
-			List<String> listUser) {
+			ArrayList<String> arrListUser) {
 		
 		listClient.add(this);
-		this.listUser = listUser;
 		ia = client.getInetAddress();
 		
 		this.client = client;
@@ -46,14 +44,12 @@ public class ServerHelper extends Thread {
 		this.sv = sv;
 		this.listClient = listClient;
 		this.jspChatDisplay = jspChatDisplay;
+		this.arrListUser = arrListUser;
 		
 		
 		try {
 			readStream = new DataInputStream(client.getInputStream());
 			writeStream = new DataOutputStream(client.getOutputStream());
-			
-//			readObjectStream = new ObjectInputStream(client.getInputStream());
-//			writeObjectStream = new ObjectOutputStream(client.getOutputStream());
 			
 			nick = readStream.readUTF();
 
@@ -63,9 +59,7 @@ public class ServerHelper extends Thread {
 					jspChatDisplay.getVerticalScrollBar().getMaximum());
 			
 			IaAndNick = ia.toString()+"@"+nick;
-			listUser.add(IaAndNick);
-//			broadcast(listUser);
-//			System.out.println("listUser브로드////////////////"+listUser.toString());
+			arrListUser.add(IaAndNick);
 			
 		} catch (IOException e) {
 			JOptionPane.showMessageDialog(sv, "스트림 생성 실패");
@@ -89,9 +83,7 @@ public class ServerHelper extends Thread {
 				jspChatDisplay.getVerticalScrollBar().setValue(
 						jspChatDisplay.getVerticalScrollBar().getMaximum());
 				
-				listUser.remove(IaAndNick);
-				System.out.println("listUser빼기////////////////"+listUser.toString());
-				broadcast(listUser);
+				arrListUser.remove(IaAndNick);
 				
 				e.printStackTrace();
 			} finally {
@@ -102,12 +94,6 @@ public class ServerHelper extends Thread {
 					if (writeStream != null) {
 						writeStream.close();
 					}
-//					if (readObjectStream != null) {
-//						readObjectStream.close();
-//					}
-//					if (writeObjectStream != null) {
-//						writeObjectStream.close();
-//					}
 					if (client != null) {
 						client.close();
 					}
@@ -135,20 +121,6 @@ public class ServerHelper extends Thread {
 		}
 	}
 	
-	public synchronized void broadcast(List<String> listUser) {
-		if (writeObjectStream != null) {
-			try {
-				ServerHelper tempSh = null;
-				for (int i=0; i<listClient.size(); i++) {
-					tempSh = listClient.get(i);
-					tempSh.writeObjectStream.writeObject(listUser);
-					tempSh.writeObjectStream.flush();
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
 	
 	public Socket getClient() {
 		return client;

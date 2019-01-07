@@ -33,17 +33,12 @@ public class ClientChatEvt extends WindowAdapter implements ActionListener, Runn
 	private Socket client;
 	private DataInputStream readStream;
 	private DataOutputStream writeStream;
-	private ObjectInputStream readObjectStream;
-	private ObjectOutputStream writeObjectStream;
 	private Thread readThread;
-	private ClientChatEvt.ThreadReadDlmUser rdu;
 	private boolean connectFlag;
-	private DefaultListModel<String> dlmUser;
 
 	public ClientChatEvt(ClientChatView ccv, int portNum) {
 		this.ccv = ccv;
 		this.portNum = portNum;
-		dlmUser = new DefaultListModel<String>();
 	}
 	
 	@Override
@@ -86,9 +81,6 @@ public class ClientChatEvt extends WindowAdapter implements ActionListener, Runn
 					
 					readStream = new DataInputStream(client.getInputStream());
 					writeStream = new DataOutputStream(client.getOutputStream());
-
-//					readObjectStream = new ObjectInputStream(client.getInputStream());
-//					writeObjectStream = new ObjectOutputStream(client.getOutputStream());
 					
 					writeStream.writeUTF(nick);
 					writeStream.flush();
@@ -96,9 +88,6 @@ public class ClientChatEvt extends WindowAdapter implements ActionListener, Runn
 					readThread = new Thread(this);
 					readThread.start();
 
-//					rdu = this.new ThreadReadDlmUser();
-//					rdu.start();
-					
 					connectFlag = !connectFlag;
 				} catch (UnknownHostException uhe) {
 					uhe.printStackTrace();
@@ -131,11 +120,7 @@ public class ClientChatEvt extends WindowAdapter implements ActionListener, Runn
 		if (e.getSource() == ccv.getJbUser()) {
 			
 			if (connectFlag) {
-				if (dlmUser.size() != 0) {
-					new ClientSelectUserView(ccv, dlmUser);
-				} else {
-					JOptionPane.showMessageDialog(ccv, "접속한 유저가 없습니다.");
-				}
+				new ClientSelectUserView(ccv, client);
 			} else {
 				JOptionPane.showMessageDialog(ccv, "서버에 먼저 접속해주세요.");
 			}
@@ -207,12 +192,6 @@ public class ClientChatEvt extends WindowAdapter implements ActionListener, Runn
 			if (writeStream != null) {
 				writeStream.close();
 			}
-//			if (readObjectStream != null) {
-//				readObjectStream.close();
-//			}
-//			if (writeObjectStream != null) {
-//				writeObjectStream.close();
-//			}
 			if (client != null) {
 				client.close();
 			}
@@ -220,39 +199,6 @@ public class ClientChatEvt extends WindowAdapter implements ActionListener, Runn
 			e1.printStackTrace();
 		} finally {
 			System.exit(0);
-		}
-	}
-	
-	public class ThreadReadDlmUser extends Thread {
-		
-		@Override
-		public void run() {
-			
-			if (readObjectStream != null) {
-				List<String> listUser = null;
-				
-				while(true) {
-					try {
-						System.out.println("1111");
-						listUser = (List<String>) readObjectStream.readObject();
-						System.out.println("2222");
-						System.out.println("클라이언트측 : " +listUser.toString());
-						for(int i=0; i<listUser.size(); i++) {
-							dlmUser.addElement(listUser.get(i));
-						}
-						
-					} catch (ClassNotFoundException e) {
-						e.printStackTrace();
-					} catch (IOException e) {
-						JOptionPane.showMessageDialog(ccv, "dlm쓰레드 서버와의 접속이 끊겼습니다.");
-						ccv.getJtaChatDisplay().append("dlm쓰레드 서버와의 접속이 끊겼습니다.\n");
-						ccv.getJspChatDisplay().getVerticalScrollBar()
-								.setValue(ccv.getJspChatDisplay().getVerticalScrollBar().getMaximum());
-						e.printStackTrace();
-						break;
-					}
-				}
-			}
 		}
 	}
 }
