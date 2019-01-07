@@ -6,16 +6,12 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 
 import kr.co.sist.multichat.server.helper.ServerHelper;
-import kr.co.sist.multichat.server.helper.ServerObjectHelper;
 import kr.co.sist.multichat.server.view.ServerView;
 
 public class ServerEvt extends WindowAdapter implements ActionListener {
@@ -23,7 +19,6 @@ public class ServerEvt extends WindowAdapter implements ActionListener {
 	private ServerView sv;
 	private ServerSocket server1, server2, server3, server4;
 	private List<ServerHelper> listSh1, listSh2, listSh3, listSh4;
-	private List<ServerObjectHelper> listSoh1, listSoh2, listSoh3, listSoh4;
 	private ServerThread serverThread1, serverThread2, serverThread3, serverThread4;
 	
 	public ServerEvt(ServerView sv) {
@@ -33,12 +28,6 @@ public class ServerEvt extends WindowAdapter implements ActionListener {
 		listSh2 = new ArrayList<ServerHelper>();
 		listSh3 = new ArrayList<ServerHelper>();
 		listSh4 = new ArrayList<ServerHelper>();
-
-		listSoh1 = new ArrayList<ServerObjectHelper>();
-		listSoh2 = new ArrayList<ServerObjectHelper>();
-		listSoh3 = new ArrayList<ServerObjectHelper>();
-		listSoh4 = new ArrayList<ServerObjectHelper>();
-		
 	}
 	
 	@Override
@@ -67,10 +56,10 @@ public class ServerEvt extends WindowAdapter implements ActionListener {
 		server3 = new ServerSocket(6003);
 		server4 = new ServerSocket(6004);
 		
-		serverThread1 = new ServerThread(server1, sv.getJtaChatDisplay1(), listSh1, sv, sv.getJspChatDisplay1(), listSoh1);
-		serverThread2 = new ServerThread(server2, sv.getJtaChatDisplay2(), listSh2, sv, sv.getJspChatDisplay2(), listSoh2);
-		serverThread3 = new ServerThread(server3, sv.getJtaChatDisplay3(), listSh3, sv, sv.getJspChatDisplay3(), listSoh3);
-		serverThread4 = new ServerThread(server4, sv.getJtaChatDisplay4(), listSh4, sv, sv.getJspChatDisplay4(), listSoh4);
+		serverThread1 = new ServerThread(server1, sv.getJtaChatDisplay1(), listSh1, sv, sv.getJspChatDisplay1());
+		serverThread2 = new ServerThread(server2, sv.getJtaChatDisplay2(), listSh2, sv, sv.getJspChatDisplay2());
+		serverThread3 = new ServerThread(server3, sv.getJtaChatDisplay3(), listSh3, sv, sv.getJspChatDisplay3());
+		serverThread4 = new ServerThread(server4, sv.getJtaChatDisplay4(), listSh4, sv, sv.getJspChatDisplay4());
 		
 		serverThread1.start();
 		serverThread2.start();

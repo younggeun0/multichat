@@ -26,6 +26,7 @@ public class ServerHelper extends Thread {
 	private JTextArea jtaChatDisplay;
 	private DataInputStream readStream;
 	private DataOutputStream writeStream;
+	private ObjectOutputStream writeObjectStream;
 	private String IaAndNick;
 	private List<ServerHelper> listClient;
 	private ServerView sv;
@@ -51,15 +52,23 @@ public class ServerHelper extends Thread {
 			readStream = new DataInputStream(client.getInputStream());
 			writeStream = new DataOutputStream(client.getOutputStream());
 			
+			
 			nick = readStream.readUTF();
 
 			broadcast(nick+"님("+ia.toString()+")이 접속하였습니다.");
 			jtaChatDisplay.append(nick+"님("+ia.toString()+"이 접속하였습니다.\n");
 			jspChatDisplay.getVerticalScrollBar().setValue(
 					jspChatDisplay.getVerticalScrollBar().getMaximum());
+			System.out.println("~님이 접속, broadcast 완료");
 			
+			// ObjectStream 만들고 broadcast하는 순간  
+			writeObjectStream = new ObjectOutputStream(client.getOutputStream());
+
 			IaAndNick = ia.toString()+"@"+nick;
 			arrListUser.add(IaAndNick);
+			broadcast(arrListUser);
+			System.out.println("유저 리스트 추가 후 직렬화 전송 완료");
+			
 			
 		} catch (IOException e) {
 			JOptionPane.showMessageDialog(sv, "스트림 생성 실패");
@@ -74,7 +83,9 @@ public class ServerHelper extends Thread {
 				String revMsg = "";
 				while (true) {
 					revMsg = readStream.readUTF();
+					System.out.println(revMsg);
 					broadcast(revMsg);
+					System.out.println("받은 메시지 broadcast 완료");
 					jtaChatDisplay.append(revMsg+"\n");
 				}
 			} catch (IOException e) {
@@ -84,6 +95,7 @@ public class ServerHelper extends Thread {
 						jspChatDisplay.getVerticalScrollBar().getMaximum());
 				
 				arrListUser.remove(IaAndNick);
+				broadcast(arrListUser);
 				
 				e.printStackTrace();
 			} finally {
@@ -93,6 +105,9 @@ public class ServerHelper extends Thread {
 					}
 					if (writeStream != null) {
 						writeStream.close();
+					}
+					if (writeObjectStream != null) {
+						writeObjectStream.close();
 					}
 					if (client != null) {
 						client.close();
@@ -114,6 +129,22 @@ public class ServerHelper extends Thread {
 					tempSh = listClient.get(i);
 					tempSh.writeStream.writeUTF(msg);
 					tempSh.writeStream.flush();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public synchronized void broadcast(ArrayList<String> arrListUser) {
+		
+		if (writeStream != null) {
+			try {
+				ServerHelper tempSh = null;
+				for (int i=0; i<listClient.size(); i++) {
+					tempSh = listClient.get(i);
+					tempSh.writeObjectStream.writeObject(arrListUser);
+					tempSh.writeObjectStream.flush();
 				}
 			} catch (IOException e) {
 				e.printStackTrace();

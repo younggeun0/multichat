@@ -13,22 +13,20 @@ import javax.swing.border.TitledBorder;
 import kr.co.sist.multichat.client.evt.ClientSelectUserEvt;
 import kr.co.sist.multichat.server.helper.ServerHelper;
 
+@SuppressWarnings("serial")
 public class ClientSelectUserView extends JDialog {
 
 	private JList<String> listUser;
-	private DefaultListModel<String> dlmUser;
 	
-	public ClientSelectUserView(ClientChatView ccv, Socket client) {
+	public ClientSelectUserView(ClientChatView ccv, DefaultListModel<String> dlmUser) {
 		super(ccv, "立加磊 格废", true);
-		
-		dlmUser = new DefaultListModel<>();
 		
 		listUser = new JList<String>(dlmUser);
 		listUser.setBorder(new TitledBorder("立加磊 格废"));
 		
 		add(BorderLayout.CENTER, listUser);
 		
-		ClientSelectUserEvt csue = new ClientSelectUserEvt(this, client, dlmUser);
+		ClientSelectUserEvt csue = new ClientSelectUserEvt(this);
 		addWindowListener(csue);
 		
 		setBounds(600, 400, 200, 300);
