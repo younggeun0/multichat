@@ -31,7 +31,9 @@ public class ClientChatEvt extends WindowAdapter implements ActionListener, Runn
 	private String nick;
 	private ClientChatView ccv;
 	private int portNum;
+	private int objPortNum;
 	private Socket client;
+	private Socket clientObj;
 	private DataInputStream readStream;
 	private DataOutputStream writeStream;
 	private ClientChatEvt.ThreadReadObject rdu;
@@ -40,9 +42,10 @@ public class ClientChatEvt extends WindowAdapter implements ActionListener, Runn
 	private Thread readThread;
 	private boolean connectFlag;
 
-	public ClientChatEvt(ClientChatView ccv, int portNum) {
+	public ClientChatEvt(ClientChatView ccv, int portNum, int objPortNum) {
 		this.ccv = ccv;
 		this.portNum = portNum;
+		this.objPortNum = objPortNum;
 		dlmUser = new DefaultListModel<String>();
 	}
 	
@@ -53,17 +56,11 @@ public class ClientChatEvt extends WindowAdapter implements ActionListener, Runn
 			try {
 				String revMsg = "";
 				while (true) {
-					System.out.println("readUtf 1111");
-					// 서버에서 writeObjectStream 생성 후 broadcast(arrListUser) 호출하면
-					// readStream.readUTF();를 수행 못 하는 문제
 					revMsg = readStream.readUTF();
-					System.out.println("readUtf2222");
 					ccv.getJtaChatDisplay().append(revMsg+"\n");
 					ccv.getJspChatDisplay().getVerticalScrollBar().setValue(
 							ccv.getJspChatDisplay().getVerticalScrollBar().getMaximum());
 				}
-			} catch (EOFException eofe) {
-				// 읽을 거 없을땐 유지
 			} catch (IOException e) {
 				JOptionPane.showMessageDialog(ccv, "서버와의 접속이 끊겼습니다.");
 				ccv.getJtaChatDisplay().append("서버와의 접속이 끊겼습니다.\n");
@@ -88,20 +85,21 @@ public class ClientChatEvt extends WindowAdapter implements ActionListener, Runn
 						return;
 					}
 					client = new Socket("localhost", portNum);
+					clientObj = new Socket("localhost", objPortNum);
 					ccv.getJtaChatDisplay().setText("서버와 연결되었습니다.\n");
 					
 					readStream = new DataInputStream(client.getInputStream());
 					writeStream = new DataOutputStream(client.getOutputStream());
 					
+					readObjectStream = new ObjectInputStream(clientObj.getInputStream());
+
 					writeStream.writeUTF(nick);
 					writeStream.flush();
-
-					readObjectStream = new ObjectInputStream(client.getInputStream());
 					
 					readThread = new Thread(this);
-					readThread.start();
-					
 					ClientChatEvt.ThreadReadObject tro = this.new ThreadReadObject();
+
+					readThread.start();
 					tro.start();
 
 					connectFlag = !connectFlag;
@@ -208,6 +206,9 @@ public class ClientChatEvt extends WindowAdapter implements ActionListener, Runn
 			if (writeStream != null) {
 				writeStream.close();
 			}
+			if (readObjectStream != null) {
+				readObjectStream.close();
+			}
 			if (client != null) {
 				client.close();
 			}
@@ -222,29 +223,25 @@ public class ClientChatEvt extends WindowAdapter implements ActionListener, Runn
 	public class ThreadReadObject extends Thread {
 		@Override
 		public void run() {
-			
 			if (readObjectStream != null) {
-				ArrayList<String> arrListUser = null;
-				
-				while(true) {
-					try {
-						System.out.println("tro 1111");
-						arrListUser = (ArrayList<String>) readObjectStream.readObject();
-						System.out.println("tro 2222");
-						System.out.println("클라이언트측 : " +arrListUser.toString());
+				try {
+					ArrayList<String> arrListUser = null;
+					
+					while (true) {
 						
-						for(int i=0; i<arrListUser.size(); i++) {
+						arrListUser = (ArrayList<String>) readObjectStream.readObject();
+						System.out.println("서버로 부터 받은 "+arrListUser);
+
+						dlmUser.removeAllElements();
+						for (int i = 0; i < arrListUser.size(); i++) {
 							dlmUser.addElement(arrListUser.get(i));
 						}
-						
-					} catch (ClassNotFoundException e) {
-						e.printStackTrace();
-					} catch (EOFException eofe) {
-						// 읽을거 없을 땐 유지
-					} catch (IOException e) {
-						e.printStackTrace();
-						break;
 					}
+					
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
 			}
 		}

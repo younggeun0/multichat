@@ -16,15 +16,18 @@ public class ServerThread extends Thread {
 
 	private ServerView sv;
 	private ServerSocket server;
+	private ServerSocket serverObj;
 	private Socket client;
+	private Socket clientObj;
 	private JTextArea jtaChatDisplay;
 	private List<ServerHelper> listSh;
 	private ArrayList<String> arrListUser;
 	private JScrollPane jspChatDisplay;
 	
-	public ServerThread(ServerSocket server, JTextArea jtaChatDisplay, 
+	public ServerThread(ServerSocket server, ServerSocket serverObj, JTextArea jtaChatDisplay, 
 			List<ServerHelper> listSh, ServerView sv, JScrollPane jspChatDisplay) {
 		this.server = server;
+		this.serverObj = serverObj;
 		this.jtaChatDisplay = jtaChatDisplay;
 		this.listSh = listSh;
 		this.sv = sv;
@@ -41,7 +44,9 @@ public class ServerThread extends Thread {
 			
 			while(true) {
 				client = server.accept();
-				sh = new ServerHelper(client, jtaChatDisplay, sv, listSh
+				clientObj = serverObj.accept();
+				
+				sh = new ServerHelper(client, clientObj, jtaChatDisplay, sv, listSh
 						, jspChatDisplay, arrListUser);
 				sh.start();
 			}

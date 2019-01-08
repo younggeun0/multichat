@@ -21,6 +21,7 @@ public class ClientSelectUserView extends JDialog {
 	public ClientSelectUserView(ClientChatView ccv, DefaultListModel<String> dlmUser) {
 		super(ccv, "立加磊 格废", true);
 		
+		System.out.println(dlmUser.toString());
 		listUser = new JList<String>(dlmUser);
 		listUser.setBorder(new TitledBorder("立加磊 格废"));
 		

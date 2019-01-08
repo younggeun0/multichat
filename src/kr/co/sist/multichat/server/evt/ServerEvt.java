@@ -16,8 +16,9 @@ import kr.co.sist.multichat.server.view.ServerView;
 
 public class ServerEvt extends WindowAdapter implements ActionListener {
 
-	private ServerView sv;
+	private ServerView sv;	
 	private ServerSocket server1, server2, server3, server4;
+	private ServerSocket serverObj1, serverObj2, serverObj3, serverObj4; // ObjStream을 위한 서버소켓
 	private List<ServerHelper> listSh1, listSh2, listSh3, listSh4;
 	private ServerThread serverThread1, serverThread2, serverThread3, serverThread4;
 	
@@ -51,15 +52,15 @@ public class ServerEvt extends WindowAdapter implements ActionListener {
 	
 	public void startServers() throws IOException {
 		
-		server1 = new ServerSocket(6001);
-		server2 = new ServerSocket(6002);
-		server3 = new ServerSocket(6003);
-		server4 = new ServerSocket(6004);
+		server1 = new ServerSocket(6001);	serverObj1 = new ServerSocket(7001);
+		server2 = new ServerSocket(6002);	serverObj2 = new ServerSocket(7002);
+		server3 = new ServerSocket(6003);	serverObj3 = new ServerSocket(7003);
+		server4 = new ServerSocket(6004);	serverObj4 = new ServerSocket(7004);
 		
-		serverThread1 = new ServerThread(server1, sv.getJtaChatDisplay1(), listSh1, sv, sv.getJspChatDisplay1());
-		serverThread2 = new ServerThread(server2, sv.getJtaChatDisplay2(), listSh2, sv, sv.getJspChatDisplay2());
-		serverThread3 = new ServerThread(server3, sv.getJtaChatDisplay3(), listSh3, sv, sv.getJspChatDisplay3());
-		serverThread4 = new ServerThread(server4, sv.getJtaChatDisplay4(), listSh4, sv, sv.getJspChatDisplay4());
+		serverThread1 = new ServerThread(server1, serverObj1, sv.getJtaChatDisplay1(), listSh1, sv, sv.getJspChatDisplay1());
+		serverThread2 = new ServerThread(server2, serverObj2, sv.getJtaChatDisplay2(), listSh2, sv, sv.getJspChatDisplay2());
+		serverThread3 = new ServerThread(server3, serverObj3, sv.getJtaChatDisplay3(), listSh3, sv, sv.getJspChatDisplay3());
+		serverThread4 = new ServerThread(server4, serverObj4, sv.getJtaChatDisplay4(), listSh4, sv, sv.getJspChatDisplay4());
 		
 		serverThread1.start();
 		serverThread2.start();

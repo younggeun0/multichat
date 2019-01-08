@@ -20,7 +20,7 @@ public class ClientChatView extends JFrame {
 	private JScrollPane jspChatDisplay;
 	private JTextField jtfTalk, jtfNick;
 	
-	public ClientChatView(int portNum) {
+	public ClientChatView(int portNum, int objPortNum) {
 		super("채팅 클라이언트");
 		
 		JLabel jlNick = new JLabel("대화명", JLabel.CENTER);
@@ -49,7 +49,7 @@ public class ClientChatView extends JFrame {
 		add(BorderLayout.CENTER, jspChatDisplay);
 		add(BorderLayout.SOUTH, jtfTalk);
 		
-		ClientChatEvt cce = new ClientChatEvt(this, portNum);
+		ClientChatEvt cce = new ClientChatEvt(this, portNum, objPortNum);
 		jbConnect.addActionListener(cce);
 		jbCapture.addActionListener(cce);
 		jbClose.addActionListener(cce);
