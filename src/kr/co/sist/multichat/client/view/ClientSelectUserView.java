@@ -1,9 +1,6 @@
 package kr.co.sist.multichat.client.view;
 
 import java.awt.BorderLayout;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.util.List;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JDialog;
@@ -11,7 +8,6 @@ import javax.swing.JList;
 import javax.swing.border.TitledBorder;
 
 import kr.co.sist.multichat.client.evt.ClientSelectUserEvt;
-import kr.co.sist.multichat.server.helper.ServerHelper;
 
 @SuppressWarnings("serial")
 public class ClientSelectUserView extends JDialog {

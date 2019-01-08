@@ -136,7 +136,7 @@ public class ServerHelper extends Thread {
 				ServerHelper tempSh = null;
 				for (int i=0; i<listSh.size(); i++) {
 					tempSh = listSh.get(i);
-					System.out.println("broadcastÇÏÀÚ!"+arrListUser);
+					System.out.println("server broadcast : "+arrListUser);
 					tempSh.writeObjectStream.writeObject(arrListUser);
 					tempSh.writeObjectStream.flush();
 				}

@@ -217,6 +217,7 @@ public class ClientChatEvt extends WindowAdapter implements ActionListener, Runn
 	
 	
 	public class ThreadReadObject extends Thread {
+		
 		@Override
 		public void run() {
 			if (readObjectStream != null) {
@@ -226,7 +227,7 @@ public class ClientChatEvt extends WindowAdapter implements ActionListener, Runn
 					while (true) {
 						
 						arrListUser = (ArrayList<String>) readObjectStream.readObject();
-						System.out.println("서버로 부터 받은 "+arrListUser);
+						System.out.println("client got a broadcast : "+arrListUser);
 
 						dlmUser.removeAllElements();
 						for (int i = 0; i < arrListUser.size(); i++) {
