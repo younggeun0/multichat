@@ -7,17 +7,13 @@ import java.awt.event.WindowEvent;
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.EOFException;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.ConnectException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
@@ -36,7 +32,7 @@ public class ClientChatEvt extends WindowAdapter implements ActionListener, Runn
 	private Socket clientObj;
 	private DataInputStream readStream;
 	private DataOutputStream writeStream;
-	private ClientChatEvt.ThreadReadObject rdu;
+	private ClientChatEvt.ThreadReadObject tro;
 	private ObjectInputStream readObjectStream;
 	private DefaultListModel<String> dlmUser;
 	private Thread readThread;
