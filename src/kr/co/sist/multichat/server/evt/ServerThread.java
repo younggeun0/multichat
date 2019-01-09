@@ -20,20 +20,18 @@ public class ServerThread extends Thread {
 	private Socket client;
 	private Socket clientObj;
 	private JTextArea jtaChatDisplay;
-	private List<ServerHelper> listSh;
-	private ArrayList<String> arrListUser;
 	private JScrollPane jspChatDisplay;
+	private List<ServerHelper> listSh;
 	
 	public ServerThread(ServerSocket server, ServerSocket serverObj, JTextArea jtaChatDisplay, 
-			List<ServerHelper> listSh, ServerView sv, JScrollPane jspChatDisplay) {
+		ServerView sv, JScrollPane jspChatDisplay) {
+		this.sv = sv;
 		this.server = server;
 		this.serverObj = serverObj;
 		this.jtaChatDisplay = jtaChatDisplay;
-		this.listSh = listSh;
-		this.sv = sv;
 		this.jspChatDisplay = jspChatDisplay;
 		
-		arrListUser = new ArrayList<String>();
+		listSh = new ArrayList<ServerHelper>();
 	}
 	
 	@Override
@@ -46,10 +44,8 @@ public class ServerThread extends Thread {
 				client = server.accept();
 				clientObj = serverObj.accept();
 				
-				sh = new ServerHelper(client, clientObj, jtaChatDisplay, sv, listSh
-						, jspChatDisplay, arrListUser);
+				sh = new ServerHelper(client, clientObj, jtaChatDisplay, sv, listSh, jspChatDisplay);
 				sh.start();
-				sh.broadcast();
 			}
 			
 		} catch (IOException e) {

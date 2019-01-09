@@ -32,20 +32,18 @@ public class ServerHelper extends Thread {
 	private ArrayList<String> arrListUser;
 	
 	public ServerHelper(Socket client, Socket clientObj, JTextArea jtaChatDisplay, ServerView sv, 
-			List<ServerHelper> listSh, JScrollPane jspChatDisplay,
-			ArrayList<String> arrListUser) {
-		
+			List<ServerHelper> listSh, JScrollPane jspChatDisplay) {
+
 		listSh.add(this);
 		ia = client.getInetAddress();
+		arrListUser = new ArrayList<>();
 		
+		this.sv = sv;
 		this.client = client;
 		this.clientObj = clientObj;
 		this.jtaChatDisplay = jtaChatDisplay;
-		this.sv = sv;
-		this.listSh = listSh;
 		this.jspChatDisplay = jspChatDisplay;
-		this.arrListUser = arrListUser;
-		
+		this.listSh = listSh;
 		
 		try {
 			readStream = new DataInputStream(client.getInputStream());
@@ -56,8 +54,7 @@ public class ServerHelper extends Thread {
 			nick = readStream.readUTF();
 			
 			IaAndNick = ia.toString()+"@"+nick;
-			arrListUser.add(IaAndNick);
-//			broadcast();
+			broadcast();
 
 			broadcast(nick+"님("+ia.toString()+")이 접속하였습니다.");
 			jtaChatDisplay.append(nick+"님("+ia.toString()+"이 접속하였습니다.\n");
@@ -69,7 +66,7 @@ public class ServerHelper extends Thread {
 			JOptionPane.showMessageDialog(sv, "스트림 생성 실패");
 		}
 	}
-	
+
 	@Override
 	public void run() {
 		
@@ -82,13 +79,12 @@ public class ServerHelper extends Thread {
 					jtaChatDisplay.append(revMsg+"\n");
 				}
 			} catch (IOException e) {
+				listSh.remove(this);
+				broadcast();
 				JOptionPane.showMessageDialog(sv, nick+"님("+ia.toString()+")과 연결이 끊어졌습니다.");
 				jtaChatDisplay.append(nick+"님("+ia.toString()+")과 연결이 끊어졌습니다.\n");
 				jspChatDisplay.getVerticalScrollBar().setValue(
 						jspChatDisplay.getVerticalScrollBar().getMaximum());
-				
-				arrListUser.remove(IaAndNick);
-				broadcast();
 				
 				e.printStackTrace();
 			} finally {
@@ -110,7 +106,6 @@ public class ServerHelper extends Thread {
 				}
 			}
 		}
-		
 	}
 	
 	public synchronized void broadcast(String msg) {
@@ -134,7 +129,7 @@ public class ServerHelper extends Thread {
 		if (writeObjectStream != null) {
 			try {
 				arrListUser.clear();
-				for(ServerHelper tempSh : listSh){
+				for (ServerHelper tempSh : listSh) {
 					arrListUser.add(tempSh.IaAndNick);
 				}
 				System.out.println( "---"+arrListUser );
