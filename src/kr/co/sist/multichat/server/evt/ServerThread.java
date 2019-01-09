@@ -3,6 +3,7 @@ package kr.co.sist.multichat.server.evt;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,6 +49,8 @@ public class ServerThread extends Thread {
 				sh.start();
 			}
 			
+		} catch (SocketException se) {
+			System.out.println("클라이언트와 연결 끊김");
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {

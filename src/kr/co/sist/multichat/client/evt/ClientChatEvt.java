@@ -12,6 +12,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
@@ -222,24 +223,26 @@ public class ClientChatEvt extends WindowAdapter implements ActionListener, Runn
 		public void run() {
 			if (readObjectStream != null) {
 				try {
-					ArrayList<String> arrListUser = null;
+					ArrayList<String> arrListUser = new ArrayList<>();
 					
 					while (true) {
-						
 						arrListUser = (ArrayList<String>) readObjectStream.readObject();
-						System.out.println("client got a broadcast : "+arrListUser);
+						System.out.println("client가 받은 list : "+arrListUser);
 
 						dlmUser.removeAllElements();
 						for (int i = 0; i < arrListUser.size(); i++) {
 							dlmUser.addElement(arrListUser.get(i));
 						}
+						
+						arrListUser.clear();
+						System.out.println("dlm에 넣고 초기화 된 list : "+arrListUser);
 					}
 					
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
 					e.printStackTrace();
-				}
+				} 
 			}
 		}
 	}

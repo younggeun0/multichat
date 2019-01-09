@@ -2,10 +2,12 @@ package kr.co.sist.multichat.server.helper;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,9 +81,10 @@ public class ServerHelper extends Thread {
 					jtaChatDisplay.append(revMsg+"\n");
 				}
 			} catch (IOException e) {
-				listSh.remove(this);
+				System.out.println("list삭제 : "+listSh.remove(this));
 				broadcast();
-				JOptionPane.showMessageDialog(sv, nick+"님("+ia.toString()+")과 연결이 끊어졌습니다.");
+				
+				broadcast(nick+"님("+ia.toString()+")과 연결이 끊어졌습니다.");
 				jtaChatDisplay.append(nick+"님("+ia.toString()+")과 연결이 끊어졌습니다.\n");
 				jspChatDisplay.getVerticalScrollBar().setValue(
 						jspChatDisplay.getVerticalScrollBar().getMaximum());
