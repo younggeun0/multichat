@@ -49,6 +49,7 @@ public class ServerThread extends Thread {
 				sh = new ServerHelper(client, clientObj, jtaChatDisplay, sv, listSh
 						, jspChatDisplay, arrListUser);
 				sh.start();
+				sh.broadcast();
 			}
 			
 		} catch (IOException e) {

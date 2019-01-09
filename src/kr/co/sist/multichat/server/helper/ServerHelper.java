@@ -57,7 +57,7 @@ public class ServerHelper extends Thread {
 			
 			IaAndNick = ia.toString()+"@"+nick;
 			arrListUser.add(IaAndNick);
-			broadcast(arrListUser);
+//			broadcast();
 
 			broadcast(nick+"님("+ia.toString()+")이 접속하였습니다.");
 			jtaChatDisplay.append(nick+"님("+ia.toString()+"이 접속하였습니다.\n");
@@ -88,7 +88,7 @@ public class ServerHelper extends Thread {
 						jspChatDisplay.getVerticalScrollBar().getMaximum());
 				
 				arrListUser.remove(IaAndNick);
-				broadcast(arrListUser);
+				broadcast();
 				
 				e.printStackTrace();
 			} finally {
@@ -129,14 +129,16 @@ public class ServerHelper extends Thread {
 		}
 	}
 	
-	public synchronized void broadcast(ArrayList<String> arrListUser) {
+	public synchronized void broadcast() {
 		
 		if (writeObjectStream != null) {
 			try {
-				ServerHelper tempSh = null;
-				for (int i=0; i<listSh.size(); i++) {
-					tempSh = listSh.get(i);
-					System.out.println("server broadcast : "+arrListUser);
+				arrListUser.clear();
+				for(ServerHelper tempSh : listSh){
+					arrListUser.add(tempSh.IaAndNick);
+				}
+				System.out.println( "---"+arrListUser );
+				for (ServerHelper tempSh : listSh) {
 					tempSh.writeObjectStream.writeObject(arrListUser);
 					tempSh.writeObjectStream.flush();
 				}

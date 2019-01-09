@@ -19,7 +19,7 @@ public class ServerEvt extends WindowAdapter implements ActionListener {
 	private ServerView sv;	
 	private ServerSocket server1, server2, server3, server4;
 	private ServerSocket serverObj1, serverObj2, serverObj3, serverObj4; // ObjStream을 위한 서버소켓
-	private List<ServerHelper> listSh1, listSh2, listSh3, listSh4;
+	private static List<ServerHelper> listSh1, listSh2, listSh3, listSh4;
 	private ServerThread serverThread1, serverThread2, serverThread3, serverThread4;
 	
 	public ServerEvt(ServerView sv) {
