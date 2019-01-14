@@ -13,6 +13,7 @@ import javax.swing.JTextField;
 
 import kr.co.sist.multichat.client.evt.ClientChatEvt;
 
+@SuppressWarnings("serial")
 public class ClientChatView extends JFrame {
 
 	private JButton jbConnect, jbCapture, jbClose, jbUser;

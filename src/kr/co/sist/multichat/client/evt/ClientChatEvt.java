@@ -12,7 +12,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.Socket;
-import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
@@ -33,7 +32,6 @@ public class ClientChatEvt extends WindowAdapter implements ActionListener, Runn
 	private Socket clientObj;
 	private DataInputStream readStream;
 	private DataOutputStream writeStream;
-	private ClientChatEvt.ThreadReadObject tro;
 	private ObjectInputStream readObjectStream;
 	private DefaultListModel<String> dlmUser;
 	private Thread readThread;

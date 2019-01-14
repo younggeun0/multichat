@@ -12,6 +12,7 @@ import javax.swing.border.TitledBorder;
 
 import kr.co.sist.multichat.server.evt.ServerEvt;
 
+@SuppressWarnings("serial")
 public class ServerView extends JFrame {
 
 	private JTextArea jtaChatDisplay1, jtaChatDisplay2, 

@@ -8,6 +8,7 @@ import javax.swing.JRadioButton;
 
 import kr.co.sist.multichat.client.evt.ClientSelectTeamEvt;
 
+@SuppressWarnings("serial")
 public class ClientSelectTeamView extends JFrame {
 
 	private JRadioButton jrTeam1, jrTeam2, jrTeam3, jrTeam4;

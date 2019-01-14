@@ -2,12 +2,10 @@ package kr.co.sist.multichat.server.helper;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,27 +20,21 @@ public class ServerHelper extends Thread {
 	private String nick;
 	private InetAddress ia;
 	private Socket client;
-	private Socket clientObj;
 	private JTextArea jtaChatDisplay;
 	private DataInputStream readStream;
 	private DataOutputStream writeStream;
 	private ObjectOutputStream writeObjectStream;
 	private String IaAndNick;
 	private List<ServerHelper> listSh;
-	private ServerView sv;
 	private JScrollPane jspChatDisplay;
-	private ArrayList<String> arrListUser;
 	
 	public ServerHelper(Socket client, Socket clientObj, JTextArea jtaChatDisplay, ServerView sv, 
 			List<ServerHelper> listSh, JScrollPane jspChatDisplay) {
 
 		listSh.add(this);
 		ia = client.getInetAddress();
-		arrListUser = new ArrayList<>();
 		
-		this.sv = sv;
 		this.client = client;
-		this.clientObj = clientObj;
 		this.jtaChatDisplay = jtaChatDisplay;
 		this.jspChatDisplay = jspChatDisplay;
 		this.listSh = listSh;
@@ -62,7 +54,6 @@ public class ServerHelper extends Thread {
 			jtaChatDisplay.append(nick+"님("+ia.toString()+"이 접속하였습니다.\n");
 			jspChatDisplay.getVerticalScrollBar().setValue(
 					jspChatDisplay.getVerticalScrollBar().getMaximum());
-			
 			
 		} catch (IOException e) {
 			JOptionPane.showMessageDialog(sv, "스트림 생성 실패");
@@ -131,13 +122,12 @@ public class ServerHelper extends Thread {
 		
 		if (writeObjectStream != null) {
 			try {
-				arrListUser.clear();
+				List<String> listUser = new ArrayList<String>();
 				for (ServerHelper tempSh : listSh) {
-					arrListUser.add(tempSh.IaAndNick);
+					listUser.add(tempSh.IaAndNick);
 				}
-				System.out.println( "---"+arrListUser );
 				for (ServerHelper tempSh : listSh) {
-					tempSh.writeObjectStream.writeObject(arrListUser);
+					tempSh.writeObjectStream.writeObject(listUser);
 					tempSh.writeObjectStream.flush();
 				}
 			} catch (IOException e) {
